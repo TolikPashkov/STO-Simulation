@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_sto" default="compile.module.sto">
+  <dirname property="module.sto.basedir" file="${ant.file.module_sto}"/>
+  
+  <property name="module.jdk.home.sto" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.sto" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.sto" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.sto" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="sto.output.dir" value="${module.sto.basedir}/out/production/STO"/>
+  <property name="sto.testoutput.dir" value="${module.sto.basedir}/out/test/STO"/>
+  
+  <path id="sto.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="sto.module.production.classpath">
+    <path refid="${module.jdk.classpath.sto}"/>
+  </path>
+  
+  <path id="sto.runtime.production.module.classpath">
+    <pathelement location="${sto.output.dir}"/>
+  </path>
+  
+  <path id="sto.module.classpath">
+    <path refid="${module.jdk.classpath.sto}"/>
+    <pathelement location="${sto.output.dir}"/>
+  </path>
+  
+  <path id="sto.runtime.module.classpath">
+    <pathelement location="${sto.testoutput.dir}"/>
+    <pathelement location="${sto.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.sto">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.sto">
+    <patternset refid="excluded.from.module.sto"/>
+  </patternset>
+  
+  <path id="sto.module.sourcepath">
+    <dirset dir="${module.sto.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.sto" depends="compile.module.sto.production,compile.module.sto.tests" description="Compile module STO"/>
+  
+  <target name="compile.module.sto.production" depends="register.custom.compilers" description="Compile module STO; production classes">
+    <mkdir dir="${sto.output.dir}"/>
+    <javac2 destdir="${sto.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.sto}/javac">
+      <compilerarg line="${compiler.args.sto}"/>
+      <bootclasspath refid="sto.module.bootclasspath"/>
+      <classpath refid="sto.module.production.classpath"/>
+      <src refid="sto.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.sto"/>
+    </javac2>
+    
+    <copy todir="${sto.output.dir}">
+      <fileset dir="${module.sto.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.sto.tests" depends="register.custom.compilers,compile.module.sto.production" description="compile module STO; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.sto" description="cleanup module">
+    <delete dir="${sto.output.dir}"/>
+    <delete dir="${sto.testoutput.dir}"/>
+  </target>
+</project>
